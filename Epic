@@ -1,0 +1,150 @@
+package Smithing;
+
+import org.dreambot.api.methods.container.impl.Inventory;
+import org.dreambot.api.methods.container.impl.bank.Bank;
+import org.dreambot.api.methods.map.Area;
+import org.dreambot.api.methods.walking.impl.Walking;
+import org.dreambot.api.script.AbstractScript;
+import org.dreambot.api.script.Category;
+import org.dreambot.api.script.ScriptManifest;
+
+import javax.swing.*;
+
+
+@ScriptManifest(name = "Slime's Smither", description = "A simple script to smith bars into items. Im new to coding it might be buggy!", author = "SlimeScientist",
+        version = 1.0, category = Category.SMITHING, image = "")
+public class Main extends AbstractScript {
+
+    Area bankarea = new Area(3180, 3433, 3185, 3445, 0);
+    Area anvilarea = new Area(3190, 3425, 3186, 3429, 0);
+    Area gearea = new Area(3161, 3486, 3168,3493,0 );
+
+
+
+
+
+    public boolean startscript;
+    public String Input1;
+    public String Output1;
+
+
+    public Maing gui;
+    public State state;
+    public enum State{
+        WTB, WTA, WTGE, BANK, GE, SMITH, NH, NI, FU
+    }
+
+    public State getState() {
+        state = getState();
+
+        if (Inventory.isEmpty() && !bankarea.contains(getLocalPlayer())) {
+            return State.WTB;
+        }
+        if (Inventory.isEmpty() && bankarea.contains(getLocalPlayer())){
+            return State.BANK;
+            //if (!Inventory.contains("Hammer")) {
+            //    return State.NH;
+            //}
+            //if (!Inventory.contains(gui.getI() + "")){
+            //    return State.NI;
+            //}
+
+        }
+        return State.FU;
+    }
+
+
+    @Override
+    public void onStart() {
+        SwingUtilities.invokeLater(()-> {
+            gui = new Maing(this);
+            gui.setVisible(true);
+        });
+    }
+
+    @Override
+    public int onLoop() {
+
+        if (startscript) {
+            //Before the Main part Script runs
+            getWalking().setRunThreshold(101);
+
+            gui.setVisible(false);
+
+            boolean a = Inventory.contains("Hammer");
+            //(What is being inputed) boolean b = Inventory.contains(gui.getI()+"");
+
+
+
+
+            state = getState();
+            switch (state){
+                case WTB:
+
+                    while (!bankarea.contains(getLocalPlayer())){
+                        Walking.walk(bankarea);
+                        sleep(5000,5200);
+                    }
+                    break;
+                case BANK:
+
+                    Bank.openClosest();
+                    sleepUntil(()->Bank.isOpen(),1000);
+                    Bank.depositAllItems();
+                    sleepUntil(() -> Inventory.isEmpty(), 1000);
+                    Bank.withdraw("Hammer", 1);
+                    sleepUntil(() -> Inventory.contains("Hammer"), 1000);
+                    Bank.withdrawAll(Input1 + "");
+                    sleepUntil(() -> Inventory.contains(Input1 + ""), 1000);
+                    Bank.close();
+                    break;
+
+                case WTA:
+
+
+                case SMITH:
+
+
+                case WTGE:
+
+
+                case GE:
+
+
+                case NH:
+
+
+                case NI:
+
+
+
+                    // cases incase I need them
+                //case
+                //case
+
+
+
+            }
+
+        }
+        return 1000;
+    }
+
+
+    @Override
+    public void onExit() {
+
+    }
+
+    public void setInput1(String input1) {
+        Input1 = input1;
+    }
+
+    public void setOutput1(String output1) {
+        Output1 = output1;
+    }
+
+    public void setStartscript(boolean startscript) {
+        this.startscript = startscript;
+    }
+}
